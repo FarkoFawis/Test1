@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ein besonderer Gruß</title>
+    <style>
+        :root {
+            --env-color: #a78bfa;
+            --env-color-dark: #7c3aed;
+            --paper-color: #f7f3ff;
+            --bg-color: #e8dffc;
+            --text-color: #3f008f;
+            --hint-color: #8c6fe5;
+            
+            /* DEINE AKTUALISIERTEN EINSTELLUNGEN */
+            --heart-opacity: 0.2; 
+            --heart-scale: 3.0; /* Jetzt auf 3.0 gestellt */
+
+            --cubic-bezier: cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            overflow-x: hidden;
+            overflow-y: hidden; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Herz-Ebene */
+        .heart-background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('Herz.png'); 
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: contain; 
+            z-index: 1;
+            pointer-events: none;
+            opacity: var(--heart-opacity);
+            transform: scale(var(--heart-scale)); 
+            transition: opacity 1s ease, transform 1.5s var(--cubic-bezier);
+        }
+
+        body.open .heart-background-layer {
+            opacity: 0.1;
+        }
+
+        /* Zurück-Pfeil */
+        .back-arrow {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--paper-color);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: var(--env-color-dark);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            border: 2px solid var(--env-color);
+        }
+
+        .back-arrow:hover {
+            transform: scale(1.1);
+            background-color: var(--env-color);
+            color: white;
+        }
+
+        body.open .back-arrow {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Umschlag */
+        .envelope-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            width: 300px;
+            height: 200px;
+            z-index: 100; 
+            transition: transform 1.5s var(--cubic-bezier), opacity 1.2s var(--cubic-bezier);
+        }
+
+        .envelope-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: var(--env-color-dark);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.3);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid var(--env-color);
+            transform-origin: top;
+            transition: transform 0.6s var(--cubic-bezier);
+            z-index: 101;
+        }
+
+        .envelope-body::before {
+            content: "";
+            position: absolute;
+            z-index: 5;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid var(--env-color);
+            bottom: 0;
+        }
+
+        .envelope-body::after {
+            content: "";
+            position: absolute;
+            z-index: 4;
+            border-left: 150px solid var(--env-color-dark);
+            border-right: 150px solid var(--env-color-dark);
+            border-top: 100px solid transparent;
+            border-bottom: 100px solid transparent;
+            top: 0;
+        }
+
+        /* Brief */
+        .letter {
+            width: 50%;
+            min-width: 320px;
+            background-color: var(--paper-color);
+            margin: 5vh auto 10vh auto; 
+            padding: 60px;
+            box-sizing: border-box;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(120vh); 
+            z-index: 150; 
+            transition: transform 1.8s var(--cubic-bezier) 0.3s, opacity 1s ease 0.5s;
+            min-height: 85vh; 
+        }
+
+        .letter-content {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* Animationen */
+        body.open .flap { transform: rotateX(180deg); z-index: 0; }
+        body.open .envelope-wrapper { transform: translate(-50%, 100vh); opacity: 0; pointer-events: none; }
+        body.open .letter { opacity: 1; transform: translateY(0); }
+        body.open { overflow-y: auto; }
+
+        .hint {
+            position: absolute;
+            bottom: -60px;
+            width: 100%;
+            text-align: center;
+            color: var(--hint-color);
+            font-weight: 300;
+            letter-spacing: 1px;
+            animation: breathe 2s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.6; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            .letter { width: 90%; padding: 30px; }
+            /* Auf Mobile etwas weniger Zoom, da das Display schmaler ist */
+            .heart-background-layer { transform: scale(1.8); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heart-background-layer"></div>
+
+    <div class="back-arrow" id="backBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </div>
+
+    <div class="envelope-wrapper" id="envelope">
+        <div class="flap"></div>
+        <div class="envelope-body"></div>
+        <div class="hint">KLICKEN ZUM ÖFFNEN</div>
+    </div>
+
+    <article class="letter">
+        <div class="letter-content">
+Liebe/r [Name],
+
+jetzt ist das Herz auf die Größe 3.0 skaliert. Es wirkt nun fast wie ein schützender Rahmen, der den ganzen Bildschirm einnimmt.
+
+Viel Spaß mit deinem fertigen Design!
+        </div>
+    </article>
+
+    <script>
+        const envelope = document.getElementById('envelope');
+        const backBtn = document.getElementById('backBtn');
+        envelope.addEventListener('click', () => { document.body.classList.add('open'); });
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { document.body.classList.remove('open'); }, 100); 
+        });
+    </script>
+</body>
+</html>
